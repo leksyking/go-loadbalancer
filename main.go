@@ -53,15 +53,19 @@ func (s *simpleServer) isAlive() bool {
 
 }
 
+func (s *simpleServer) serve(w http.ResponseWriter, r *http.Request) {
+	s.proxy.ServeHTTP(w, r)
+}
+
 func (lb *LoadBalancer) getNextAvaliableServer() Server {
 
 }
 
-func (s *simpleServer) serve() {
-
+func (lb *LoadBalancer) serveProxy(w http.ResponseWriter, r *http.Request) {
+	targetServer := lb.getNextAvaliableServer()
+	fmt.Printf("Forwarding request to address %q \n", targetServer.Address())
+	targetServer.Serve(w, r)
 }
-
-func (lb *LoadBalancer) serveProxy(w http.ResponseWriter, r *http.Request) {}
 
 func main() {
 	servers := []Server{
