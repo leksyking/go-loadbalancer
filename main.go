@@ -25,7 +25,7 @@ func newSimpleServer(addr string) *simpleServer {
 
 	return &simpleServer{
 		addr:  addr,
-		proxy: httputil.NewSingleHostReverseProxy(serverUrl)
+		proxy: httputil.NewSingleHostReverseProxy(serverUrl),
 	}
 }
 
@@ -44,4 +44,18 @@ type LoadBalancer struct {
 
 func NewLoadBalancer(port string, servers []Server) *LoadBalancer {
 	return &LoadBalancer{port, 0, servers}
+}
+
+func (lb *LoadBalancer) getNextAvaliableServer() Server {
+
+}
+
+func (lb *LoadBalancer) serveProxy(w http.ResponseWriter, r *http.Request) {}
+
+func main() {
+	servers := []Server{
+		newSimpleServer("https://www.facebook.com"),
+		newSimpleServer("http://www.bing.com"),
+		newSimpleServer("http://www.duckduckgo.com"),
+	}
 }
