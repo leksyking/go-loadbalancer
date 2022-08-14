@@ -46,7 +46,18 @@ func NewLoadBalancer(port string, servers []Server) *LoadBalancer {
 	return &LoadBalancer{port, 0, servers}
 }
 
+func (s *simpleServer) Address() string {
+	return s.addr
+}
+func (s *simpleServer) isAlive() bool {
+
+}
+
 func (lb *LoadBalancer) getNextAvaliableServer() Server {
+
+}
+
+func (s *simpleServer) serve() {
 
 }
 
@@ -58,4 +69,13 @@ func main() {
 		newSimpleServer("http://www.bing.com"),
 		newSimpleServer("http://www.duckduckgo.com"),
 	}
+	lb := NewLoadBalancer("8000", servers)
+	handleRedirect := func(w http.ResponseWriter, r *http.Request) {
+		lb.serveProxy(w, r)
+	}
+	http.HandleFunc("/", handleRedirect)
+
+	fmt.Println("serving requests at 'localhost: %s' \n", lb.port)
+
+	http.ListenAndServe(":"+lb.port, nil)
 }
