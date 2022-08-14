@@ -10,7 +10,7 @@ import (
 
 type Server interface {
 	Address() string
-	isAlive() bool
+	IsAlive() bool
 	Serve(w http.ResponseWriter, r *http.Request)
 }
 
@@ -49,16 +49,22 @@ func NewLoadBalancer(port string, servers []Server) *LoadBalancer {
 func (s *simpleServer) Address() string {
 	return s.addr
 }
-func (s *simpleServer) isAlive() bool {
-
+func (s *simpleServer) IsAlive() bool {
+	return true
 }
 
-func (s *simpleServer) serve(w http.ResponseWriter, r *http.Request) {
+func (s *simpleServer) Serve(w http.ResponseWriter, r *http.Request) {
 	s.proxy.ServeHTTP(w, r)
 }
 
 func (lb *LoadBalancer) getNextAvaliableServer() Server {
-
+	server := lb.servers[lb.roundRobinCount%len(lb.servers)]
+	for !server.IsAlive() {
+		lb.roundRobinCount++
+		server = lb.servers[lb.roundRobinCount%len(lb.servers)]
+	}
+	lb.roundRobinCount++
+	return server
 }
 
 func (lb *LoadBalancer) serveProxy(w http.ResponseWriter, r *http.Request) {
@@ -79,7 +85,7 @@ func main() {
 	}
 	http.HandleFunc("/", handleRedirect)
 
-	fmt.Println("serving requests at 'localhost: %s' \n", lb.port)
+	fmt.Printf("serving requests at 'localhost: %s' \n", lb.port)
 
 	http.ListenAndServe(":"+lb.port, nil)
 }
